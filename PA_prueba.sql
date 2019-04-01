@@ -52,4 +52,25 @@ create procedure fechaAlea() not deterministic
 		select now() as hoy, rand() as aleatorio;
 	end//
 
+drop function if exists estado//
+
+create function estado(estado char(1)) returns varchar(20) deterministic
+comment 'estado = P -> caducado, estado = 0 -> activo, estado = N -> nuevo'
+begin
+	declare resultado varchar(20);
+	declare miEstado char(1);
+
+	set miEstado = (upper(estado));
+
+	if miEstado = 'P' then
+		set resultado = 'caducado';
+	elseif miEstado = '0' then
+		set resultado = 'activia';
+	elseif miEstado = 'N' then
+		set resultado = 'nuevo';
+	end if;
+	return resultado;
+end//
+
 delimiter ;
+
