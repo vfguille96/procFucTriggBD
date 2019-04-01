@@ -72,5 +72,48 @@ begin
 	return resultado;
 end//
 
+drop function if exists estadoRef//
+
+create function estadoRef(estado char(1)) returns varchar(20) deterministic
+comment 'estado = P -> caducado, estado = 0 -> activo, estado = N -> nuevo'
+begin
+	declare resultado varchar(20);
+
+	case upper(estado)
+	when 'P' then
+		set resultado = 'caducado';
+	when '0' then
+		set resultado = 'activia';
+	when 'N' then
+		set resultado = 'nuevo';
+	else set resultado = 'desconocido';
+	end case;
+	return resultado;
+end//
+
+drop function if exists parImpar//
+
+create function parImpar(numero int) returns varchar(5) deterministic
+comment 'Comprueba si el número entero es par o impar'
+begin
+	declare resultado varchar(5);
+
+	case (mod(numero, 2) = 0)
+	when 1 then
+		set resultado = 'PAR';
+	when 0 then
+		set resultado = 'IMPAR';
+	end case;
+	return resultado;
+end//
+
+drop procedure if exists parImparProc//
+
+create procedure parImparProc(numero int)
+comment 'Comprueba si el número entero es par o impar'
+begin
+	select parImpar(numero) as pariedad;
+end//
+
 delimiter ;
 
