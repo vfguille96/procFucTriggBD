@@ -115,5 +115,55 @@ begin
 	select parImpar(numero) as pariedad;
 end//
 
+
+drop function if exists hipotenusa//
+
+create function hipotenusa(a double, b double) returns decimal(5, 2) deterministic
+comment 'Cálculo de la hipotenusa a partir de sus lados'
+begin
+	return (sqrt((a * a)) + (b * b));
+end//
+
+drop function if exists totalPuntos//
+
+create function totalPuntos(fechaPartido date) returns int deterministic
+comment 'Devuelve la suma total de puntos de un partido dado una fecha.'
+begin
+	return ((select cast(substring_index(resultado, '-', 1) as int) from partido where fecha = fechaPartido) + 
+		(select cast(substring_index(resultado, '-', -1) as int) from partido where fecha = fechaPartido));
+end//
+
+
+drop procedure if exists totalPuntosProc//
+
+create procedure totalPuntosProc(in fechaPartido date, in local smallint(6), in visitante smallint(6), 
+	out acumuladoPuntos smallint, out estado tinyint)
+comment 'Devuelve la suma total de puntos de un partido dado una fecha, equipo local, visitantes y devuelve también el estado: 0, 1, 2'
+begin
+	declare marcador char(7);
+
+	if not exists (select * from partido where fecha = fechaPartido and elocal = local and evisitante = visitante) then
+		set estado = 2;
+	else 
+		set marcador = (select resultado from liga.partido where fecha = fechaPartido and elocal = local and evisitante = visitante);
+
+		if marcador is null then
+			set estado = 1;
+		else 
+			set estado = 0;
+			set acumuladoPuntos = cast(substring_index(marcador, '-', 1) as int) + cast(substring_index(marcador, '-', -1) as int);
+		end if;
+	end if;
+end//
+
+drop function if exists palindromo//
+
+create function palindromo(palabreja varchar(255)) returns tinyint(1) deterministic
+comment 'Función que comprueba si una palabra es palíndromo.'
+begin
+	return (select lower(replace(reverse(palabreja), ' ', ''))) = replace(lower(palabreja), ' ', '');
+end//
+
+
 delimiter ;
 
