@@ -10,8 +10,10 @@ create procedure insertarJugador(unNombre varchar(50),
 )
 comment 'Inserta un nuevo jugador en la tabla liga.jugador con gestión de excepciones'
 begin
+	DECLARE errno SMALLINT UNSIGNED DEFAULT 9180;
 	declare unID smallint;
 	declare unCapitan smallint;
+
 
 	declare exit handler for 1265
 	begin
@@ -30,8 +32,8 @@ begin
 
 	set unID = (select ifnull(max(id) + 1, 1) from jugador); 
 
-	if (select unNombre rlike '^[A-z]*$A-z]*$')
-
+	if (select unNombre not rlike '^[A-z]*$A-z]*$') then
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = errno, MESSAGE_TEXT = 'Nombre incorrectamente formado.';
 	end if;
 
 /*
