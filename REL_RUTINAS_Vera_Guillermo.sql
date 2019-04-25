@@ -1,7 +1,9 @@
 delimiter //
 
 drop function if exists esPrimo//
+drop function if exists sucesion//
 drop function if exists sumaN//
+drop procedure if exists actualizarPuntos//
 drop function if exists esPalindromo//
 drop function if exists maxTres//
 drop function if exists diaSemana//
@@ -47,6 +49,35 @@ begin
 	END IF;
 end//
 
+create procedure actualizarPuntos()
+comment '4. Procedicimiento actualizar puntos'
+begin
+	declare puntosLocal int default 0;
+	declare puntosVisit int default 0;
+	declare contador int default 1;
+	declare numMaxEquipo int default 0;
+	declare puntosSuma int default 0;
+
+	set numMaxEquipo = (select max(id) from equipo);
+	
+	WHILE (contador <= numMaxEquipo) DO
+		set puntosLocal = (select ifnull(sum(substring_index(resultado,'-',1)), 0) from partido where elocal = contador);
+		set puntosVisit = (select ifnull(sum(substring_index(resultado,'-',-1)), 0) from partido where evisitante = contador);
+
+		IF (puntosLocal is null) THEN
+			set puntosSuma = puntosVisit;
+		ELSEIF (puntosVisit is null) THEN
+			set puntosSuma = puntosLocal;
+		ELSE
+			set puntosSuma = puntosLocal+PuntosVisit;
+		END IF;
+
+		update equipo set puntos=puntosSuma where id=contador;
+
+		set contador = contador + 1;
+	END WHILE;
+	select id,nombre,ciudad,puntos from equipo;
+end//
 
 create function sumaN(numerete int) returns bigint deterministic
 comment '5. Función que devuelve la suma de los n primeros números'
@@ -62,16 +93,25 @@ declare suma bigint default 0;
 	return suma;
 end//
 
-delimiter ;
+create function sucesion(m int) returns decimal(20, 19) deterministic
+comment '6. Función que devuelve la sucesión de 1/n numeros'
+begin
+	declare suma decimal(20, 19) default 0;
+	WHILE (m > 1) DO
+		set suma = suma + 1 / m;
+		set m = m - 1;
+	END WHILE;
+	return suma;
+end//
 
 create function esPrimo(numerete int) returns tinyint(1) deterministic
 comment '7. Función que devuelve si el número pasado es primo'
 begin
 declare contador int default 2;
 
-	IF numerete = 0 THEN
+	IF (numerete = 0) THEN
 		return 0;
-	ELSEIF numerete = 1 THEN
+	ELSEIF (numerete = 1) THEN
 		return 0;
 	ELSE
 		WHILE (contador <= SQRT(numerete)) DO
@@ -86,3 +126,27 @@ declare contador int default 2;
 	END IF;
 end//
 
+
+create procedure encriptar(cadena varchar(255))
+comment '9. Procedicimiento que devuelve la cadena de texto encriptada'
+begin
+	declare numeroChar int default 0;
+	declare longitudCadena int default 0;
+	declare contador int default 1;
+	declare caracter char(1) default ' ';
+	declare cadenaFinal varchar(255) default '';
+
+	set longitudCadena = CHAR_LENGTH(cadena);
+
+	WHILE (contador <= longitudCadena) DO
+		set caracter = SUBSTR(cadena, contador, 1);
+		set numeroChar = ASCII(caracter);
+		set cadenaFinal = CONCAT(cadenaFinal, CHAR(numeroChar + 1));
+
+		set contador = contador + 1;
+	END WHILE;
+
+	select cadenaFinal;
+end//
+
+delimiter ;
