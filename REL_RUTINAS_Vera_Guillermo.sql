@@ -4,6 +4,7 @@ drop function if exists esPrimo//
 drop function if exists sucesion//
 drop function if exists sumaN//
 drop procedure if exists actualizarPuntos//
+drop function if exists reverse2//
 drop function if exists esPalindromo//
 drop function if exists maxTres//
 drop function if exists diaSemana//
@@ -39,7 +40,7 @@ begin
 	return (select GREATEST(n1, n2, n3));
 end//
 
-create function esPalindromo(palabreja varchar(150)) returns tinyint(1) deterministic
+create function esPalindromo(palabreja varchar(255)) returns tinyint(1) deterministic
 comment '3. Función que devuelve si la cadena de texto pasada es palíndromo'
 begin
 	IF UPPER(REVERSE(palabreja)) = UPPER(palabreja) THEN
@@ -48,6 +49,20 @@ begin
 		return 0;
 	END IF;
 end//
+
+create function reverse2(cadena varchar(255)) returns varchar(255) deterministic
+comment '3.1 Función que devuelve una cadena inversa.'
+begin
+	declare resultado varchar(255) default '';
+	declare contador int default length(cadena);
+
+	WHILE contador > 0 do
+		set resultado = CONCAT(resultado, substring(cadena, contador, 1));
+		set contador = contador - 1;
+	end WHILE;
+
+	return resultado;
+end// 
 
 create procedure actualizarPuntos()
 comment '4. Procedicimiento actualizar puntos'
