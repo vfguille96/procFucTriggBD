@@ -1,6 +1,7 @@
 delimiter //
 
 drop function if exists esPrimo//
+drop procedure if exists generarPrimos//
 drop function if exists sucesion//
 drop function if exists sumaN//
 drop procedure if exists actualizarPuntos//
@@ -140,6 +141,27 @@ declare contador int default 2;
 		return 1;
 	END IF;
 end//
+
+
+create table if not exists prueba.primos (numero int)//
+create procedure generarPrimos(m int, out salida int)
+comment '8. muestra m numeros primos, y salida muestra el numero total mostrado'
+begin
+	declare numSeguidos int default 2;
+	declare numDePrimos int default 0;
+
+	while numSeguidos <= m do
+
+		IF select esPrimo(numSeguidos) THEN
+			insert into prueba.primos (numero) values (numSeguidos);
+			set numDePrimos = numDePrimos+1;
+		END IF;
+		set numSeguidos = numSeguidos+1;
+
+	END WHILE;
+	set salida = numDePrimos;
+end//
+
 
 
 create procedure encriptar(cadena varchar(255))
