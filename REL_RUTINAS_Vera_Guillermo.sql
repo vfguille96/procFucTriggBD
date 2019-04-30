@@ -142,7 +142,7 @@ declare contador int default 2;
 	END IF;
 end//
 
-
+create database if not exists prueba//
 create table if not exists prueba.primos (numero int)//
 create procedure generarPrimos(m int, out salida int)
 comment '8. muestra m numeros primos, y salida muestra el numero total mostrado'
@@ -152,7 +152,7 @@ begin
 
 	while numSeguidos <= m do
 
-		IF select esPrimo(numSeguidos) THEN
+		IF (select esPrimo(numSeguidos)) = 1 THEN
 			insert into prueba.primos (numero) values (numSeguidos);
 			set numDePrimos = numDePrimos+1;
 		END IF;
@@ -163,7 +163,7 @@ begin
 end//
 
 
-
+drop procedure if exists encriptar//
 create procedure encriptar(cadena varchar(255))
 comment '9. Procedicimiento que devuelve la cadena de texto encriptada'
 begin
@@ -185,5 +185,45 @@ begin
 
 	select cadenaFinal;
 end//
+
+drop procedure if exists puntosMes//
+create procedure puntosMes(n int)
+comment '10. Calculo los puntos al mes de cada equipo, crea la table si no esta creada, la muestra y la elimina.'
+begin
+	declare puntosLocal int default 0;
+	declare puntosVisit int default 0;
+	declare contador int default 1;
+	declare numMaxEquipo int default 0;
+	declare puntosSuma int default 0;
+	
+	IF n BETWEEN 1 and 12 THEN
+		drop table if exists puntosMes;
+		create temporary table puntosMes (id int,puntos int);
+		set numMaxEquipo = (select max(id) from equipo);
+	
+		WHILE contador <= numMaxEquipo DO
+			set puntosLocal = (select sum(substring_index(resultado,'-',1)) from partido where elocal = contador and substring_index(substring_index(fecha,'-',2),'-',-1) = n);
+			set puntosVisit = (select sum(substring_index(resultado,'-',-1)) from partido where evisitante = contador and substring_index(substring_index(fecha,'-',2),'-',-1) = n);
+
+			IF puntosLocal is null and puntosVisit is null THEN
+				set puntosSuma = 0;
+			ELSEIF puntosLocal is null THEN
+				set puntosSuma = puntosVisit;
+			ELSEIF puntosVisit is null THEN
+				set puntosSuma = puntosLocal;
+			ELSE
+				set puntosSuma = puntosLocal+PuntosVisit;
+			END IF;
+		
+			insert into puntosMes (id, puntos) values (contador, puntosSuma);
+			set contador = contador+1;
+		END WHILE;
+		select * from puntosMes;
+		drop table puntosMes;
+	ELSE
+		select 'Parametro incorrecto';
+	END IF;
+end//
+
 
 delimiter ;
