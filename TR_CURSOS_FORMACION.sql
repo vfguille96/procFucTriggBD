@@ -18,7 +18,7 @@ drop trigger if exists bu_edicion:
 create trigger bu_edicion before update on edicion for each row
 begin
 	if not exists (select * from empleado where new.profesor=idEmpleado and capacitado) then
-		SIGNAL SQLSTATE '45003' SET MESSAGE_TEXT = 'La edición está en el pasado';			
+		SIGNAL SQLSTATE '45003' SET MESSAGE_TEXT = 'El profesor asignado no está capacitado';			
 	end if;
 end//
 
