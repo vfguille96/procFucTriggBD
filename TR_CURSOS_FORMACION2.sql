@@ -63,7 +63,7 @@ end//
 drop trigger if exists bi_matricula//
 create trigger bi_matricula before insert on matricula for each row
 begin
-	if exists (select * from edicion where curso = new.curso and fecha = new.fecha and profesor = new.empleado) then
+	if exists (select * from edicion where codCurso = new.curso and fecha = new.fecha and profesor = new.empleado) then
 		SIGNAL SQLSTATE '45002' SET MESSAGE_TEXT = 'El profesor no puede ser alumno a la vez.';
 	end if;
 
@@ -94,10 +94,8 @@ end//
 
 drop trigger if exists ad_matricula//
 create trigger ad_matricula before delete on matricula for each row
-sql security invoker
 begin
-	insert into matricula values (current_timestamp(), current_user(), old.fecha, old.curso, old.empleado);
-
+	insert into matriculasBorradas values (old.fecha, old.curso, old.empleado, user(), current_timestamp());
 end//
 
 delimiter ;
